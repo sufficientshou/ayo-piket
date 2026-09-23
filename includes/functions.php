@@ -105,3 +105,15 @@ function upload_foto_dokumentasi($file) {
     
     return ['sukses' => false, 'pesan' => 'Gagal memindahkan file ke direktori tujuan'];
 }
+
+function dapatkan_inisial($nama) {
+    $nama = trim($nama);
+    $pecah = preg_split('/\s+/', $nama);
+    if (count($pecah) >= 2) {
+        return strtoupper(substr($pecah[0], 0, 1) . substr($pecah[1], 0, 1));
+    }
+    if (stripos($nama, 'farjar') !== false) {
+        return 'FJ';
+    }
+    return strtoupper(substr($nama, 0, 2));
+}

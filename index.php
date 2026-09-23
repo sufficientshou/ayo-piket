@@ -36,26 +36,28 @@ $daftar_nama_bulan = [
     9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
 ];
 
-function dapatkan_inisial($nama) {
-    $nama = trim($nama);
-    $pecah = preg_split('/\s+/', $nama);
-    if (count($pecah) >= 2) {
-        return strtoupper(substr($pecah[0], 0, 1) . substr($pecah[1], 0, 1));
+if (!function_exists('dapatkan_inisial')) {
+    function dapatkan_inisial($nama) {
+        $nama = trim($nama);
+        $pecah = preg_split('/\s+/', $nama);
+        if (count($pecah) >= 2) {
+            return strtoupper(substr($pecah[0], 0, 1) . substr($pecah[1], 0, 1));
+        }
+        if (stripos($nama, 'farjar') !== false) {
+            return 'FJ';
+        }
+        return strtoupper(substr($nama, 0, 2));
     }
-    if (stripos($nama, 'farjar') !== false) {
-        return 'FJ';
-    }
-    return strtoupper(substr($nama, 0, 2));
 }
 ?>
 
 <div class="space-y-8 sm:space-y-10">
     <div class="bg-[#164E33] border-2 border-black neo-shadow-lg relative overflow-hidden min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] p-8 sm:p-14 lg:p-20 flex flex-col justify-center">
-        <svg class="absolute bottom-0 right-0 w-48 sm:w-80 lg:w-[420px] h-72 sm:h-[440px] lg:h-[580px] pointer-events-none z-0" viewBox="0 0 200 250" fill="none" preserveAspectRatio="none">
-            <polygon points="45,250 200,250 200,45 70,0" fill="#E84125" stroke="#000000" stroke-width="3" />
-        </svg>
+        <div class="absolute -right-16 sm:-right-20 lg:-right-24 xl:-right-32 bottom-0 pointer-events-none select-none z-0 lg:z-10 opacity-75 sm:opacity-90 lg:opacity-100 flex items-end justify-end">
+            <img src="assets/images/logo.png" alt="Logo Ayo Piket" class="w-[340px] sm:w-[420px] md:w-[480px] lg:w-[560px] xl:w-[680px] h-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.35)]">
+        </div>
 
-        <div class="max-w-4xl relative z-20 space-y-5 sm:space-y-6">
+        <div class="max-w-2xl xl:max-w-3xl relative z-20 space-y-5 sm:space-y-6">
             <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
                 <span class="bg-white text-black border-2 border-black px-3.5 py-1.5 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider shadow-[2px_2px_0_#000]">
                     PIKET HIMTIKA UNSIKA

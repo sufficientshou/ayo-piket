@@ -1,14 +1,14 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../config/database.php';
-$judul_halaman = "Rekap Presensi & Dashboard";
-require_once __DIR__ . '/header.php';
-
-$total_pengurus = $koneksi->query("SELECT COUNT(*) FROM members WHERE is_active = 1")->fetchColumn();
-$total_jadwal_bulan_ini = $koneksi->query("SELECT COUNT(*) FROM schedules WHERE bulan = MONTH(CURRENT_DATE()) AND tahun = YEAR(CURRENT_DATE())")->fetchColumn();
-$total_presensi = $koneksi->query("SELECT COUNT(*) FROM attendances")->fetchColumn();
+require_once __DIR__ . '/../includes/functions.php';
 
 $filter_tanggal = sanitize($_GET['filter_tanggal'] ?? '');
 $filter_divisi = (int)($_GET['filter_divisi'] ?? 0);
+$filter_status = sanitize($_GET['filter_status'] ?? '');
 
 if (isset($_GET['verifikasi_id'])) {
     $id_v = (int)$_GET['verifikasi_id'];
@@ -64,6 +64,11 @@ if ($filter_divisi > 0) {
     $params[] = $filter_divisi;
 }
 
+if (!empty($filter_status)) {
+    $kondisi[] = "a.status_verifikasi = ?";
+    $params[] = $filter_status;
+}
+
 if (!empty($kondisi)) {
     $query_str .= " WHERE " . implode(" AND ", $kondisi);
 }
@@ -73,152 +78,233 @@ $stmt_att = $koneksi->prepare($query_str);
 $stmt_att->execute($params);
 $daftar_presensi = $stmt_att->fetchAll();
 
+if (isset($_GET['export']) && $_GET['export'] === 'excel') {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=rekap_presensi_' . date('Ymd_His') . '.csv');
+    $output = fopen('php://output', 'w');
+    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+    fputcsv($output, ['ID', 'Tanggal', 'Hari', 'Jam Mulai', 'Jam Selesai', 'NIM', 'Nama Pengurus', 'Divisi', 'Status Verifikasi', 'Catatan', 'Waktu Kirim']);
+    foreach ($daftar_presensi as $p) {
+        fputcsv($output, [
+            $p['id'],
+            $p['tanggal'],
+            date('l', strtotime($p['tanggal'])),
+            $p['jam_mulai'],
+            $p['jam_selesai'],
+            $p['nim'],
+            $p['nama'],
+            $p['nama_divisi'],
+            $p['status_verifikasi'],
+            $p['catatan'],
+            $p['created_at']
+        ]);
+    }
+    fclose($output);
+    exit();
+}
+
 $stmt_divs = $koneksi->query("SELECT * FROM divisions ORDER BY nama_divisi ASC");
 $daftar_divisi = $stmt_divs->fetchAll();
+
+$label_divisi_terpilih = 'SEMUA DIVISI';
+foreach ($daftar_divisi as $d) {
+    if ($filter_divisi == $d['id']) {
+        $label_divisi_terpilih = strtoupper($d['nama_divisi']);
+        break;
+    }
+}
+
+$label_status_terpilih = 'SEMUA STATUS';
+if ($filter_status === 'valid') {
+    $label_status_terpilih = 'TERVERIFIKASI';
+} elseif ($filter_status === 'pending') {
+    $label_status_terpilih = 'MENUNGGU REVIEW';
+}
+
+$judul_halaman = "Rekap Presensi & Dashboard";
+require_once __DIR__ . '/header.php';
 ?>
 
-<div class="space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="space-y-6 sm:space-y-8">
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Dashboard & Rekap Presensi</h1>
-            <p class="text-sm text-slate-500">Pantau seluruh laporan dan dokumentasi piket pengurus yang masuk</p>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tight text-black">
+                DASHBOARD &amp; REKAP PRESENSI
+            </h1>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            </div>
-            <div>
-                <div class="text-2xl font-bold text-slate-800"><?= $total_pengurus ?></div>
-                <div class="text-xs text-slate-500 font-medium">Pengurus Aktif</div>
-            </div>
+    <div class="bg-white border-2 border-black neo-shadow-lg p-5 sm:p-7 flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
+        <div>
+            <h2 class="text-lg sm:text-2xl font-black uppercase tracking-tight text-black">Riwayat Laporan Piket</h2>
+            <p class="font-mono text-xs sm:text-sm text-slate-600 mt-1.5">
+                Klik pada foto dokumentasi untuk memperbesar tampilan &amp; cek detail kegiatan.
+            </p>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            </div>
-            <div>
-                <div class="text-2xl font-bold text-slate-800"><?= $total_jadwal_bulan_ini ?></div>
-                <div class="text-xs text-slate-500 font-medium">Slot Terjadwal Bulan Ini</div>
-            </div>
-        </div>
+        <form action="index.php" method="GET" class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <input type="date" name="filter_tanggal" value="<?= htmlspecialchars($filter_tanggal) ?>"
+                   class="px-4 py-2.5 sm:py-3 bg-white border-2 border-black font-mono text-xs sm:text-sm font-bold text-black neo-shadow-sm focus:outline-none">
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div>
-                <div class="text-2xl font-bold text-slate-800"><?= $total_presensi ?></div>
-                <div class="text-xs text-slate-500 font-medium">Total Laporan Masuk</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h2 class="font-bold text-slate-800">Riwayat Laporan Piket (<?= count($daftar_presensi) ?>)</h2>
-                <p class="text-xs text-slate-500">Klik pada foto dokumentasi untuk memperbesar tampilan</p>
-            </div>
-
-            <form action="index.php" method="GET" class="flex flex-wrap items-center gap-2">
-                <input type="date" name="filter_tanggal" value="<?= $filter_tanggal ?>"
-                       class="text-xs px-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <select name="filter_divisi" class="text-xs px-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="0">Semua Divisi</option>
-                    <?php foreach ($daftar_divisi as $d): ?>
-                        <option value="<?= $d['id'] ?>" <?= $filter_divisi == $d['id'] ? 'selected' : '' ?>>
-                            <?= sanitize($d['nama_divisi']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition">
-                    Filter
+            <div class="relative" id="wrapper_divisi">
+                <input type="hidden" name="filter_divisi" id="input_divisi" value="<?= $filter_divisi ?>">
+                <button type="button" onclick="toggleDropdownAdmin('divisi')" id="trigger_divisi"
+                        class="bg-white border-2 border-black px-4 py-2.5 sm:py-3 pr-9 font-mono font-bold text-xs sm:text-sm uppercase tracking-wider text-black neo-shadow-sm flex items-center justify-between gap-2 cursor-pointer focus:outline-none text-left">
+                    <span id="label_divisi"><?= $label_divisi_terpilih ?></span>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-black">
+                        <svg id="arrow_divisi" class="w-3.5 h-3.5 fill-current transition-transform duration-150" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </div>
                 </button>
-                <?php if (!empty($filter_tanggal) || $filter_divisi > 0): ?>
-                    <a href="index.php" class="text-xs text-rose-600 hover:underline px-1">Reset</a>
-                <?php endif; ?>
-            </form>
-        </div>
+                <div id="menu_divisi" class="neo-dropdown-menu absolute left-0 min-w-full top-full mt-1.5 bg-white border-2 border-black neo-shadow-lg max-h-60 overflow-y-auto z-50 hidden py-1">
+                    <div class="neo-dropdown-item px-4 py-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider cursor-pointer flex items-center justify-between border-b border-slate-100 last:border-b-0"
+                         data-selected="<?= $filter_divisi === 0 ? 'true' : 'false' ?>"
+                         onclick="pilihOpsiAdmin('divisi', 0, 'SEMUA DIVISI')">
+                        <span>SEMUA DIVISI</span>
+                    </div>
+                    <?php foreach ($daftar_divisi as $d): ?>
+                        <?php $is_d_sel = ($filter_divisi == $d['id']); ?>
+                        <div class="neo-dropdown-item px-4 py-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider cursor-pointer flex items-center justify-between border-b border-slate-100 last:border-b-0"
+                             data-selected="<?= $is_d_sel ? 'true' : 'false' ?>"
+                             onclick="pilihOpsiAdmin('divisi', <?= $d['id'] ?>, '<?= htmlspecialchars(strtoupper($d['nama_divisi']), ENT_QUOTES) ?>')">
+                            <span><?= htmlspecialchars(strtoupper($d['nama_divisi'])) ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
 
+            <div class="relative" id="wrapper_status">
+                <input type="hidden" name="filter_status" id="input_status" value="<?= htmlspecialchars($filter_status) ?>">
+                <button type="button" onclick="toggleDropdownAdmin('status')" id="trigger_status"
+                        class="bg-white border-2 border-black px-4 py-2.5 sm:py-3 pr-9 font-mono font-bold text-xs sm:text-sm uppercase tracking-wider text-black neo-shadow-sm flex items-center justify-between gap-2 cursor-pointer focus:outline-none text-left">
+                    <span id="label_status"><?= $label_status_terpilih ?></span>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-black">
+                        <svg id="arrow_status" class="w-3.5 h-3.5 fill-current transition-transform duration-150" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </div>
+                </button>
+                <div id="menu_status" class="neo-dropdown-menu absolute left-0 min-w-full top-full mt-1.5 bg-white border-2 border-black neo-shadow-lg max-h-60 overflow-y-auto z-50 hidden py-1">
+                    <div class="neo-dropdown-item px-4 py-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider cursor-pointer flex items-center justify-between border-b border-slate-100 last:border-b-0"
+                         data-selected="<?= $filter_status === '' ? 'true' : 'false' ?>"
+                         onclick="pilihOpsiAdmin('status', '', 'SEMUA STATUS')">
+                        <span>SEMUA STATUS</span>
+                    </div>
+                    <div class="neo-dropdown-item px-4 py-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider cursor-pointer flex items-center justify-between border-b border-slate-100 last:border-b-0"
+                         data-selected="<?= $filter_status === 'valid' ? 'true' : 'false' ?>"
+                         onclick="pilihOpsiAdmin('status', 'valid', 'TERVERIFIKASI')">
+                        <span>TERVERIFIKASI</span>
+                    </div>
+                    <div class="neo-dropdown-item px-4 py-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider cursor-pointer flex items-center justify-between border-b border-slate-100 last:border-b-0"
+                         data-selected="<?= $filter_status === 'pending' ? 'true' : 'false' ?>"
+                         onclick="pilihOpsiAdmin('status', 'pending', 'MENUNGGU REVIEW')">
+                        <span>MENUNGGU REVIEW</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="px-5 py-2.5 sm:py-3 bg-[#164E33] hover:bg-[#123e29] text-white border-2 border-black neo-shadow-sm neo-btn font-mono font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 transition cursor-pointer">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span>FILTER</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-white border-2 border-black neo-shadow-lg overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-                <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-[#F4EFE6] border-b-2 border-black">
                     <tr>
-                        <th class="px-6 py-3">Tanggal & Hari</th>
-                        <th class="px-6 py-3">Nama Pengurus</th>
-                        <th class="px-6 py-3">Jam Piket</th>
-                        <th class="px-6 py-3">Dokumentasi</th>
-                        <th class="px-6 py-3">Status</th>
-                        <th class="px-6 py-3">Catatan</th>
-                        <th class="px-6 py-3 text-right">Aksi</th>
+                        <th class="px-5 sm:px-6 py-4 font-mono text-xs sm:text-sm font-black text-black uppercase tracking-wider">TANGGAL &amp; HARI</th>
+                        <th class="px-5 sm:px-6 py-4 font-mono text-xs sm:text-sm font-black text-black uppercase tracking-wider">NAMA PENGURUS</th>
+                        <th class="px-5 sm:px-6 py-4 font-mono text-xs sm:text-sm font-black text-black uppercase tracking-wider">JAM PIKET</th>
+                        <th class="px-5 sm:px-6 py-4 font-mono text-xs sm:text-sm font-black text-black uppercase tracking-wider text-center">DOKUMENTASI</th>
+                        <th class="px-5 sm:px-6 py-4 font-mono text-xs sm:text-sm font-black text-black uppercase tracking-wider">STATUS</th>
+                        <th class="px-5 sm:px-6 py-4 font-mono text-xs sm:text-sm font-black text-black uppercase tracking-wider">CATATAN</th>
+                        <th class="px-5 sm:px-6 py-4 font-mono text-xs sm:text-sm font-black text-black uppercase tracking-wider text-right">AKSI</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y-2 divide-black bg-white">
                     <?php if (empty($daftar_presensi)): ?>
                         <tr>
-                            <td colspan="7" class="px-6 py-10 text-center text-slate-400">Belum ada laporan presensi piket yang masuk.</td>
+                            <td colspan="7" class="px-6 py-14 text-center font-mono text-sm text-zinc-500 bg-white">
+                                Tidak ada data presensi yang sesuai dengan filter yang dipilih.
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($daftar_presensi as $pres): ?>
                             <?php 
-                                $hari_indeks = date('N', strtotime($pres['tanggal']));
-                                $hari_nama = ($hari_indeks == 1) ? 'Senin' : (($hari_indeks == 4) ? 'Kamis' : date('l', strtotime($pres['tanggal'])));
+                                $foto_url = '../uploads/dokumentasi/' . htmlspecialchars($pres['foto_bukti']);
                             ?>
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-6 py-4">
-                                    <div class="font-bold text-slate-800 text-xs"><?= $hari_nama ?>, <?= format_tanggal_indo($pres['tanggal']) ?></div>
-                                    <div class="text-[10px] text-slate-400"><?= date('H:i', strtotime($pres['created_at'])) ?> WIB</div>
+                            <tr class="hover:bg-zinc-50 transition">
+                                <td class="px-5 sm:px-6 py-4 sm:py-5 align-middle">
+                                    <div class="font-black text-black text-base sm:text-lg leading-snug">
+                                        <?= date('l, d F', strtotime($pres['tanggal'])) ?><br>
+                                        <?= date('Y', strtotime($pres['tanggal'])) ?>
+                                    </div>
+                                    <div class="font-mono text-xs sm:text-sm text-zinc-600 mt-1">
+                                        <?= date('H:i', strtotime($pres['created_at'])) ?> WIB
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="font-semibold text-slate-800"><?= sanitize($pres['nama']) ?></div>
-                                    <span class="inline-block mt-0.5 text-[10px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">
-                                        <?= sanitize($pres['nama_divisi']) ?>
-                                    </span>
+                                <td class="px-5 sm:px-6 py-4 sm:py-5 align-middle">
+                                    <div class="font-black text-black text-base sm:text-lg">
+                                        <?= htmlspecialchars($pres['nama']) ?>
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="inline-block border-2 border-black bg-[#EEF2FF] text-[#312E81] font-mono text-xs sm:text-sm font-bold px-2.5 py-1 leading-tight neo-shadow-sm">
+                                            <?= htmlspecialchars($pres['nama_divisi']) ?>
+                                        </span>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 text-xs font-mono text-slate-700">
-                                    <?= substr($pres['jam_mulai'], 0, 5) ?> - <?= substr($pres['jam_selesai'], 0, 5) ?>
+                                <td class="px-5 sm:px-6 py-4 sm:py-5 align-middle whitespace-nowrap">
+                                    <div class="inline-block border-2 border-black bg-zinc-50 px-3 py-1.5 font-mono text-xs sm:text-sm font-bold text-black neo-shadow-sm">
+                                        <?= substr($pres['jam_mulai'], 0, 5) ?> - <?= substr($pres['jam_selesai'], 0, 5) ?>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <?php $foto_url = '../uploads/dokumentasi/' . sanitize($pres['foto_bukti']); ?>
-                                    <button type="button" onclick="bukaModalFoto('<?= $foto_url ?>', '<?= sanitize($pres['nama']) ?>')" class="group relative block overflow-hidden rounded-xl w-14 h-14 border border-slate-200 shadow-xs">
-                                        <img src="<?= $foto_url ?>" alt="Foto Bukti" class="w-full h-full object-cover group-hover:scale-110 transition duration-200">
-                                    </button>
+                                <td class="px-5 sm:px-6 py-4 sm:py-5 align-middle text-center">
+                                    <?php if (!empty($pres['foto_bukti'])): ?>
+                                        <button type="button" onclick="bukaModalFoto('<?= $foto_url ?>', '<?= htmlspecialchars($pres['nama']) ?>')" class="group relative inline-block overflow-hidden w-16 h-16 sm:w-20 sm:h-20 border-2 border-black neo-shadow-sm neo-btn transition cursor-pointer bg-zinc-100">
+                                            <img src="<?= $foto_url ?>" alt="Foto Bukti" class="w-full h-full object-cover group-hover:scale-110 transition duration-150">
+                                        </button>
+                                    <?php else: ?>
+                                        <div class="w-16 h-16 sm:w-20 sm:h-20 border-2 border-black bg-zinc-100 flex items-center justify-center font-mono text-xs text-zinc-400 mx-auto">
+                                            No Foto
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-5 sm:px-6 py-4 sm:py-5 align-middle">
                                     <?php if ($pres['status_verifikasi'] === 'valid'): ?>
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                            Terverifikasi
-                                        </span>
+                                        <div class="border-2 border-black bg-[#dcfce7] text-[#065f46] neo-shadow-sm font-mono font-bold text-xs sm:text-sm px-3.5 py-2 inline-flex">
+                                            <span>Terverifikasi</span>
+                                        </div>
                                     <?php else: ?>
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                                            Menunggu Review
-                                        </span>
+                                        <div class="border-2 border-black bg-[#fef9c3] text-[#78350f] neo-shadow-sm font-mono font-bold text-xs sm:text-sm px-3.5 py-2 inline-flex">
+                                            <span>Menunggu Review</span>
+                                        </div>
                                     <?php endif; ?>
                                 </td>
-                                <td class="px-6 py-4 text-xs text-slate-500 max-w-xs">
-                                    <?= $pres['catatan'] ? sanitize($pres['catatan']) : '<span class="italic text-slate-400">Tidak ada catatan</span>' ?>
+                                <td class="px-5 sm:px-6 py-4 sm:py-5 align-middle">
+                                    <div class="border-2 border-black bg-[#fcfcfc] px-3.5 py-2.5 font-mono text-xs sm:text-sm text-zinc-800 neo-shadow-sm w-44 break-words">
+                                        <?= htmlspecialchars($pres['catatan'] ?: '-') ?>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 text-right space-x-2">
-                                    <?php if ($pres['status_verifikasi'] !== 'valid'): ?>
-                                        <a href="index.php?verifikasi_id=<?= $pres['id'] ?>"
-                                           class="inline-flex items-center px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">
-                                            ✓ ACC
+                                <td class="px-5 sm:px-6 py-4 sm:py-5 align-middle text-right">
+                                    <div class="flex items-center justify-end gap-2.5 sm:gap-3">
+                                        <?php if ($pres['status_verifikasi'] === 'valid'): ?>
+                                            <a href="index.php?batal_verifikasi_id=<?= $pres['id'] ?>" class="w-24 sm:w-28 py-2 sm:py-2.5 border-2 border-black bg-white hover:bg-zinc-100 text-black font-mono font-bold text-xs sm:text-sm leading-tight text-center uppercase neo-shadow-sm neo-btn transition inline-block">
+                                                Batal ACC
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="index.php?verifikasi_id=<?= $pres['id'] ?>" class="w-24 sm:w-28 py-2 sm:py-2.5 border-2 border-black bg-[#B8E926] text-black font-mono font-bold text-xs sm:text-sm uppercase neo-shadow-sm neo-btn transition inline-flex items-center justify-center">
+                                                ACC
+                                            </a>
+                                        <?php endif; ?>
+                                        <a href="index.php?hapus_presensi_id=<?= $pres['id'] ?>"
+                                           onclick="return confirm('Hapus bukti presensi milik <?= htmlspecialchars($pres['nama']) ?>?')"
+                                           class="w-24 sm:w-28 py-2 sm:py-2.5 border-2 border-[#E84125] bg-white hover:bg-red-50 text-[#E84125] font-mono font-bold text-xs sm:text-sm uppercase neo-shadow-sm neo-btn transition inline-flex items-center justify-center">
+                                            Hapus
                                         </a>
-                                    <?php else: ?>
-                                        <a href="index.php?batal_verifikasi_id=<?= $pres['id'] ?>"
-                                           class="inline-flex items-center px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition" title="Batalkan status verifikasi">
-                                            Batal ACC
-                                        </a>
-                                    <?php endif; ?>
-                                    <a href="index.php?hapus_presensi_id=<?= $pres['id'] ?>"
-                                       onclick="return confirm('Hapus bukti presensi milik <?= sanitize($pres['nama']) ?>?')"
-                                       class="text-rose-600 hover:text-rose-900 font-medium text-xs">Hapus</a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -226,22 +312,79 @@ $daftar_divisi = $stmt_divs->fetchAll();
                 </tbody>
             </table>
         </div>
+
+        <div class="border-t-2 border-black p-5 bg-white flex items-center justify-end gap-2.5 font-mono text-xs sm:text-sm">
+            <button type="button" class="px-4 py-2 sm:py-2.5 border-2 border-zinc-300 text-zinc-400 font-bold bg-[#f8fafc] cursor-not-allowed">
+                &larr; Prev
+            </button>
+            <button type="button" class="px-4 py-2 sm:py-2.5 border-2 border-black font-bold bg-[#B8E926] text-black neo-shadow-sm neo-btn">
+                1
+            </button>
+            <button type="button" class="px-4 py-2 sm:py-2.5 border-2 border-black font-bold bg-white text-black neo-shadow-sm neo-btn hover:bg-zinc-50">
+                2
+            </button>
+            <button type="button" class="px-4 py-2 sm:py-2.5 border-2 border-black font-bold bg-white text-black neo-shadow-sm neo-btn hover:bg-zinc-50">
+                Next &rarr;
+            </button>
+        </div>
     </div>
+
 </div>
 
-<div id="modal_foto" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden" onclick="tutupModalFoto()">
-    <div class="bg-white rounded-2xl max-w-2xl w-full p-4 shadow-2xl space-y-3" onclick="event.stopPropagation()">
-        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-            <h4 id="judul_modal_foto" class="font-bold text-slate-800 text-sm">Dokumentasi Piket</h4>
-            <button onclick="tutupModalFoto()" class="text-slate-400 hover:text-slate-600 text-lg font-bold leading-none">&times;</button>
-        </div>
-        <div class="max-h-[75vh] overflow-auto flex items-center justify-center bg-slate-50 rounded-xl p-2">
-            <img id="gambar_modal_foto" src="" alt="Bukti Full" class="max-h-[70vh] rounded-lg object-contain">
-        </div>
-    </div>
-</div>
+<div id="modal_foto" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden" onclick="tutupModalFoto()"><div class="bg-white border-2 border-black neo-shadow-lg max-w-2xl w-full p-6 relative max-h-[90vh] overflow-hidden" onclick="event.stopPropagation()"><div class="flex justify-between items-center pb-3 mb-4 border-b-2 border-black"><div class="flex items-center gap-2"><span class="bg-[#B8E926] border border-black px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-black">PREVIEW</span><h4 id="judul_modal_foto" class="font-black text-black text-sm uppercase">Dokumentasi Piket</h4></div><button onclick="tutupModalFoto()" class="w-8 h-8 border-2 border-black bg-white flex items-center justify-center font-bold text-base hover:bg-black hover:text-white transition cursor-pointer">&times;</button></div><div class="max-h-[70vh] overflow-auto flex items-center justify-center bg-[#FAF8F5] border-2 border-black p-2"><img id="gambar_modal_foto" src="" alt="Bukti Full" class="max-h-[65vh] object-contain"></div></div></div>
 
 <script>
+function toggleDropdownAdmin(tipe) {
+    var menu = document.getElementById('menu_' + tipe);
+    var arrow = document.getElementById('arrow_' + tipe);
+    var otherTipe = tipe === 'divisi' ? 'status' : 'divisi';
+    var otherMenu = document.getElementById('menu_' + otherTipe);
+    var otherArrow = document.getElementById('arrow_' + otherTipe);
+    if (otherMenu) otherMenu.classList.add('hidden');
+    if (otherArrow) otherArrow.classList.remove('rotate-180');
+
+    if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        arrow.classList.add('rotate-180');
+    } else {
+        menu.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+    }
+}
+
+function pilihOpsiAdmin(tipe, val, label) {
+    document.getElementById('input_' + tipe).value = val;
+    document.getElementById('label_' + tipe).textContent = label;
+    var menu = document.getElementById('menu_' + tipe);
+    var arrow = document.getElementById('arrow_' + tipe);
+    if (menu) menu.classList.add('hidden');
+    if (arrow) arrow.classList.remove('rotate-180');
+
+    document.querySelectorAll('#menu_' + tipe + ' .neo-dropdown-item').forEach(function(item) {
+        item.setAttribute('data-selected', 'false');
+    });
+    if (event && event.currentTarget) {
+        event.currentTarget.setAttribute('data-selected', 'true');
+    }
+}
+
+document.addEventListener('click', function(e) {
+    var wDiv = document.getElementById('wrapper_divisi');
+    var wStat = document.getElementById('wrapper_status');
+    if (wDiv && !wDiv.contains(e.target)) {
+        var mD = document.getElementById('menu_divisi');
+        var aD = document.getElementById('arrow_divisi');
+        if (mD) mD.classList.add('hidden');
+        if (aD) aD.classList.remove('rotate-180');
+    }
+    if (wStat && !wStat.contains(e.target)) {
+        var mS = document.getElementById('menu_status');
+        var aS = document.getElementById('arrow_status');
+        if (mS) mS.classList.add('hidden');
+        if (aS) aS.classList.remove('rotate-180');
+    }
+});
+
 function bukaModalFoto(url, nama) {
     document.getElementById('gambar_modal_foto').src = url;
     document.getElementById('judul_modal_foto').innerText = 'Dokumentasi Piket: ' + nama;
@@ -251,6 +394,9 @@ function tutupModalFoto() {
     document.getElementById('modal_foto').classList.add('hidden');
     document.getElementById('gambar_modal_foto').src = '';
 }
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') tutupModalFoto();
+});
 </script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

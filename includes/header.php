@@ -19,6 +19,13 @@ $flash = get_flash_message();
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #F4F0EA;
+            background-image: radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+        }
+        .bg-polkadot {
+            background-color: #F4F0EA;
+            background-image: radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
         }
         .font-mono {
             font-family: 'Space Mono', monospace;
@@ -69,8 +76,8 @@ $flash = get_flash_message();
         }
     </style>
 </head>
-<body class="bg-[#F4F0EA] text-black min-h-screen flex flex-col">
-    <header class="bg-white border-b-2 border-black sticky top-0 z-50">
+<body class="bg-polkadot text-black min-h-screen flex flex-col">
+    <header class="bg-white border-b-2 border-black sticky top-0 z-50 relative">
         <div class="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12">
             <div class="flex justify-between items-center h-20">
                 <a href="index.php" class="flex items-center gap-3.5 group">
@@ -83,7 +90,7 @@ $flash = get_flash_message();
                     </div>
                 </a>
 
-                <div class="flex items-center gap-2.5 sm:gap-4">
+                <div class="hidden md:flex items-center gap-2.5 sm:gap-4">
                     <a href="index.php" class="px-4 sm:px-5 py-2 bg-white border-2 border-black text-black font-mono font-bold text-xs sm:text-sm uppercase tracking-wider neo-shadow-sm neo-btn transition">
                         JADWAL
                     </a>
@@ -102,9 +109,69 @@ $flash = get_flash_message();
                         </a>
                     <?php endif; ?>
                 </div>
+
+                <button id="menu-toggle" type="button" aria-label="Menu Navigasi" class="md:hidden p-2.5 bg-white border-2 border-black neo-shadow-sm neo-btn flex items-center justify-center cursor-pointer">
+                    <svg id="menu-icon-bars" class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg id="menu-icon-close" class="w-6 h-6 text-black hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
         </div>
+
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-sm border-b-2 border-black shadow-[0_4px_0px_#000] px-4 sm:px-8 py-4 space-y-2.5 z-50">
+            <a href="index.php" class="block w-full text-center px-4 py-2.5 bg-white border-2 border-black text-black font-mono font-bold text-xs uppercase tracking-wider neo-shadow-sm neo-btn transition">
+                JADWAL
+            </a>
+            <a href="presensi.php" class="block w-full text-center px-4 py-2.5 bg-white border-2 border-black text-black font-mono font-bold text-xs uppercase tracking-wider neo-shadow-sm neo-btn transition">
+                LAPOR PIKET
+            </a>
+            <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                <a href="admin/index.php" class="w-full px-4 py-2.5 bg-black border-2 border-black text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 neo-shadow-sm neo-btn transition">
+                    <span>ADMIN PANEL</span>
+                    <span class="font-bold">&rarr;</span>
+                </a>
+            <?php else: ?>
+                <a href="admin/login.php" class="w-full px-4 py-2.5 bg-black border-2 border-black text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 neo-shadow-sm neo-btn transition">
+                    <span>LOGIN ADMIN</span>
+                    <span class="font-bold">&rarr;</span>
+                </a>
+            <?php endif; ?>
+        </div>
     </header>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toggle = document.getElementById('menu-toggle');
+            var menu = document.getElementById('mobile-menu');
+            var bars = document.getElementById('menu-icon-bars');
+            var close = document.getElementById('menu-icon-close');
+            if (toggle && menu) {
+                toggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    var isHidden = menu.classList.contains('hidden');
+                    if (isHidden) {
+                        menu.classList.remove('hidden');
+                        bars.classList.add('hidden');
+                        close.classList.remove('hidden');
+                    } else {
+                        menu.classList.add('hidden');
+                        bars.classList.remove('hidden');
+                        close.classList.add('hidden');
+                    }
+                });
+                document.addEventListener('click', function(e) {
+                    if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+                        menu.classList.add('hidden');
+                        bars.classList.remove('hidden');
+                        close.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
 
     <div class="bg-[#E84125] border-b-2 border-black text-white flex items-stretch overflow-hidden">
         <div class="bg-black text-white px-4 sm:px-6 py-2 sm:py-2.5 border-r-2 border-black text-xs sm:text-sm font-mono font-bold tracking-wider shrink-0 z-10 flex items-center shadow-[2px_0_0_#000]">
