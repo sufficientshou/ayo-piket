@@ -10,6 +10,24 @@ $total_presensi = $koneksi->query("SELECT COUNT(*) FROM attendances")->fetchColu
 $filter_tanggal = sanitize($_GET['filter_tanggal'] ?? '');
 $filter_divisi = (int)($_GET['filter_divisi'] ?? 0);
 
+if (isset($_GET['verifikasi_id'])) {
+    $id_v = (int)$_GET['verifikasi_id'];
+    $stmt_v = $koneksi->prepare("UPDATE attendances SET status_verifikasi = 'valid' WHERE id = ?");
+    $stmt_v->execute([$id_v]);
+    set_flash_message('sukses', 'Laporan presensi berhasil di-ACC / diverifikasi!');
+    header("Location: index.php");
+    exit();
+}
+
+if (isset($_GET['batal_verifikasi_id'])) {
+    $id_bv = (int)$_GET['batal_verifikasi_id'];
+    $stmt_bv = $koneksi->prepare("UPDATE attendances SET status_verifikasi = 'pending' WHERE id = ?");
+    $stmt_bv->execute([$id_bv]);
+    set_flash_message('sukses', 'Status verifikasi presensi dibatalkan menjadi menunggu.');
+    header("Location: index.php");
+    exit();
+}
+
 if (isset($_GET['hapus_presensi_id'])) {
     $id_hps = (int)$_GET['hapus_presensi_id'];
     $stmt_c = $koneksi->prepare("SELECT foto_bukti FROM attendances WHERE id = ?");
@@ -134,6 +152,7 @@ $daftar_divisi = $stmt_divs->fetchAll();
                         <th class="px-6 py-3">Nama Pengurus</th>
                         <th class="px-6 py-3">Jam Piket</th>
                         <th class="px-6 py-3">Dokumentasi</th>
+                        <th class="px-6 py-3">Status</th>
                         <th class="px-6 py-3">Catatan</th>
                         <th class="px-6 py-3 text-right">Aksi</th>
                     </tr>
@@ -141,7 +160,7 @@ $daftar_divisi = $stmt_divs->fetchAll();
                 <tbody class="divide-y divide-slate-100">
                     <?php if (empty($daftar_presensi)): ?>
                         <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-slate-400">Belum ada laporan presensi piket yang masuk.</td>
+                            <td colspan="7" class="px-6 py-10 text-center text-slate-400">Belum ada laporan presensi piket yang masuk.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($daftar_presensi as $pres): ?>
@@ -169,10 +188,34 @@ $daftar_divisi = $stmt_divs->fetchAll();
                                         <img src="<?= $foto_url ?>" alt="Foto Bukti" class="w-full h-full object-cover group-hover:scale-110 transition duration-200">
                                     </button>
                                 </td>
+                                <td class="px-6 py-4">
+                                    <?php if ($pres['status_verifikasi'] === 'valid'): ?>
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                            Terverifikasi
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                            Menunggu Review
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="px-6 py-4 text-xs text-slate-500 max-w-xs">
                                     <?= $pres['catatan'] ? sanitize($pres['catatan']) : '<span class="italic text-slate-400">Tidak ada catatan</span>' ?>
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-6 py-4 text-right space-x-2">
+                                    <?php if ($pres['status_verifikasi'] !== 'valid'): ?>
+                                        <a href="index.php?verifikasi_id=<?= $pres['id'] ?>"
+                                           class="inline-flex items-center px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">
+                                            ✓ ACC
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="index.php?batal_verifikasi_id=<?= $pres['id'] ?>"
+                                           class="inline-flex items-center px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition" title="Batalkan status verifikasi">
+                                            Batal ACC
+                                        </a>
+                                    <?php endif; ?>
                                     <a href="index.php?hapus_presensi_id=<?= $pres['id'] ?>"
                                        onclick="return confirm('Hapus bukti presensi milik <?= sanitize($pres['nama']) ?>?')"
                                        class="text-rose-600 hover:text-rose-900 font-medium text-xs">Hapus</a>

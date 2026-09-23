@@ -190,25 +190,47 @@ function dapatkan_inisial($nama) {
         </div>
 
         <form action="index.php" method="GET" class="flex flex-wrap items-center gap-3">
-            <div class="relative">
-                <select name="bulan" class="appearance-none bg-white border-2 border-black px-4 py-2 sm:py-2.5 pr-9 font-mono font-bold text-xs sm:text-sm uppercase tracking-wider text-black neo-shadow-sm focus:outline-none cursor-pointer">
+            <div class="relative" id="wrapper_bulan">
+                <input type="hidden" name="bulan" id="input_bulan" value="<?= $bulan_terpilih ?>">
+                <button type="button" onclick="toggleDropdownIndex('bulan')" id="trigger_bulan"
+                        class="bg-white border-2 border-black px-4 py-2 sm:py-2.5 pr-9 font-mono font-bold text-xs sm:text-sm uppercase tracking-wider text-black neo-shadow-sm flex items-center justify-between gap-2 cursor-pointer focus:outline-none text-left">
+                    <span id="label_bulan"><?= strtoupper($daftar_nama_bulan[$bulan_terpilih] ?? 'PILIH BULAN') ?></span>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-black">
+                        <svg id="arrow_bulan" class="w-3.5 h-3.5 fill-current transition-transform duration-150" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </div>
+                </button>
+                <div id="menu_bulan" class="neo-dropdown-menu absolute left-0 min-w-full top-full mt-1.5 bg-white border-2 border-black neo-shadow-lg max-h-60 overflow-y-auto z-50 hidden py-1">
                     <?php foreach ($daftar_nama_bulan as $b_num => $b_nama): ?>
-                        <option value="<?= $b_num ?>" <?= $bulan_terpilih == $b_num ? 'selected' : '' ?>><?= strtoupper($b_nama) ?></option>
+                        <?php $is_b_sel = ($bulan_terpilih == $b_num); ?>
+                        <div class="neo-dropdown-item px-4 py-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider cursor-pointer flex items-center justify-between border-b border-slate-100 last:border-b-0"
+                             data-selected="<?= $is_b_sel ? 'true' : 'false' ?>"
+                             onclick="pilihOpsiIndex('bulan', '<?= $b_num ?>', '<?= strtoupper($b_nama) ?>')">
+                            <span><?= strtoupper($b_nama) ?></span>
+                            <?php if ($is_b_sel): ?><span class="text-xs font-mono ml-2">✓</span><?php endif; ?>
+                        </div>
                     <?php endforeach; ?>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-black">
-                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                 </div>
             </div>
 
-            <div class="relative">
-                <select name="tahun" class="appearance-none bg-white border-2 border-black px-4 py-2 sm:py-2.5 pr-9 font-mono font-bold text-xs sm:text-sm uppercase tracking-wider text-black neo-shadow-sm focus:outline-none cursor-pointer">
+            <div class="relative" id="wrapper_tahun">
+                <input type="hidden" name="tahun" id="input_tahun" value="<?= $tahun_terpilih ?>">
+                <button type="button" onclick="toggleDropdownIndex('tahun')" id="trigger_tahun"
+                        class="bg-white border-2 border-black px-4 py-2 sm:py-2.5 pr-9 font-mono font-bold text-xs sm:text-sm uppercase tracking-wider text-black neo-shadow-sm flex items-center justify-between gap-2 cursor-pointer focus:outline-none text-left">
+                    <span id="label_tahun"><?= $tahun_terpilih ?></span>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-black">
+                        <svg id="arrow_tahun" class="w-3.5 h-3.5 fill-current transition-transform duration-150" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </div>
+                </button>
+                <div id="menu_tahun" class="neo-dropdown-menu absolute left-0 min-w-full top-full mt-1.5 bg-white border-2 border-black neo-shadow-lg max-h-60 overflow-y-auto z-50 hidden py-1">
                     <?php for ($th = 2025; $th <= 2028; $th++): ?>
-                        <option value="<?= $th ?>" <?= $tahun_terpilih == $th ? 'selected' : '' ?>><?= $th ?></option>
+                        <?php $is_th_sel = ($tahun_terpilih == $th); ?>
+                        <div class="neo-dropdown-item px-4 py-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider cursor-pointer flex items-center justify-between border-b border-slate-100 last:border-b-0"
+                             data-selected="<?= $is_th_sel ? 'true' : 'false' ?>"
+                             onclick="pilihOpsiIndex('tahun', '<?= $th ?>', '<?= $th ?>')">
+                            <span><?= $th ?></span>
+                            <?php if ($is_th_sel): ?><span class="text-xs font-mono ml-2">✓</span><?php endif; ?>
+                        </div>
                     <?php endfor; ?>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-black">
-                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                 </div>
             </div>
 
@@ -299,6 +321,63 @@ function dapatkan_inisial($nama) {
             text.textContent = 'SELENGKAPNYA';
         }
     }
+
+    function toggleDropdownIndex(tipe) {
+        var menu = document.getElementById('menu_' + tipe);
+        var arrow = document.getElementById('arrow_' + tipe);
+        var otherTipe = tipe === 'bulan' ? 'tahun' : 'bulan';
+        var otherMenu = document.getElementById('menu_' + otherTipe);
+        var otherArrow = document.getElementById('arrow_' + otherTipe);
+        if (otherMenu) otherMenu.classList.add('hidden');
+        if (otherArrow) otherArrow.classList.remove('rotate-180');
+
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+            arrow.classList.add('rotate-180');
+        } else {
+            menu.classList.add('hidden');
+            arrow.classList.remove('rotate-180');
+        }
+    }
+
+    function pilihOpsiIndex(tipe, val, label) {
+        document.getElementById('input_' + tipe).value = val;
+        document.getElementById('label_' + tipe).textContent = label;
+        var menu = document.getElementById('menu_' + tipe);
+        var arrow = document.getElementById('arrow_' + tipe);
+        if (menu) menu.classList.add('hidden');
+        if (arrow) arrow.classList.remove('rotate-180');
+
+        document.querySelectorAll('#menu_' + tipe + ' .neo-dropdown-item').forEach(function(item) {
+            item.setAttribute('data-selected', 'false');
+            var chk = item.querySelector('.text-xs');
+            if (chk) chk.remove();
+        });
+        if (event && event.currentTarget) {
+            event.currentTarget.setAttribute('data-selected', 'true');
+            var chk = document.createElement('span');
+            chk.className = 'text-xs font-mono ml-2';
+            chk.textContent = '✓';
+            event.currentTarget.appendChild(chk);
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        var wBulan = document.getElementById('wrapper_bulan');
+        var wTahun = document.getElementById('wrapper_tahun');
+        if (wBulan && !wBulan.contains(e.target)) {
+            var mB = document.getElementById('menu_bulan');
+            var aB = document.getElementById('arrow_bulan');
+            if (mB) mB.classList.add('hidden');
+            if (aB) aB.classList.remove('rotate-180');
+        }
+        if (wTahun && !wTahun.contains(e.target)) {
+            var mT = document.getElementById('menu_tahun');
+            var aT = document.getElementById('arrow_tahun');
+            if (mT) mT.classList.add('hidden');
+            if (aT) aT.classList.remove('rotate-180');
+        }
+    });
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
