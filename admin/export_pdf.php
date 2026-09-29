@@ -44,7 +44,7 @@ $total_sesi = count($daftar_tanggal);
     <style>
         @page {
             size: A4 landscape;
-            margin: 10mm;
+            margin: 0;
         }
         * {
             box-sizing: border-box;
@@ -106,7 +106,8 @@ $total_sesi = count($daftar_tanggal);
                 display: none !important;
             }
             body {
-                padding: 0;
+                padding: 10mm;
+                margin: 0;
             }
         }
         .document-header {
@@ -145,7 +146,8 @@ $total_sesi = count($daftar_tanggal);
         }
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-auto-rows: 1fr;
             gap: 12px;
         }
         .neo-card {
@@ -155,8 +157,9 @@ $total_sesi = count($daftar_tanggal);
             padding: 14px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            min-height: 180px;
+            min-width: 0;
+            min-height: 190px;
+            height: 100%;
             break-inside: avoid;
             page-break-inside: avoid;
         }
@@ -258,7 +261,7 @@ $total_sesi = count($daftar_tanggal);
         .empty-state {
             border: 2px dashed #94a3b8;
             background: #ffffff;
-            padding: 16px 8px;
+            padding: 12px 8px;
             text-align: center;
             font-family: monospace;
             font-size: 11px;
@@ -267,37 +270,14 @@ $total_sesi = count($daftar_tanggal);
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-grow: 1;
             min-height: 60px;
-        }
-        .document-footer {
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 2px solid #000000;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            font-family: monospace;
-            font-size: 11px;
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-        .ttd-box {
-            text-align: center;
-            font-family: sans-serif;
-            font-size: 11px;
-        }
-        .ttd-space {
-            height: 44px;
-        }
-        .ttd-line {
-            font-weight: bold;
-            font-family: monospace;
         }
     </style>
 </head>
 <body>
     <div class="no-print">
-        <span>Tekan tombol di samping atau gunakan shortcut <strong>Ctrl + P</strong> lalu pilih <em>Save as PDF</em> untuk mencetak / menyimpan PDF.</span>
+        <span>Tekan tombol di samping atau gunakan shortcut <strong>Ctrl + P</strong> lalu pilih <em>Save as PDF</em> untuk mencetak / menyimpan PDF (hilangkan centang <em>Headers and footers</em> jika masih muncul di print preview).</span>
         <div class="btn-group">
             <a href="schedule.php?bulan=<?= $bulan ?>&tahun=<?= $tahun ?>" class="btn-back">&larr; Kembali</a>
             <button onclick="window.print()" class="btn-print">Cetak / Simpan PDF</button>
@@ -322,60 +302,45 @@ $total_sesi = count($daftar_tanggal);
                 $is_kamis = ($info['hari'] === 'Kamis');
             ?>
             <div class="neo-card">
-                <div>
-                    <div class="card-top-row">
-                        <?php if ($is_kamis): ?>
-                            <span class="badge-day badge-kamis">KAMIS</span>
-                        <?php else: ?>
-                            <span class="badge-day badge-senin">SENIN</span>
-                        <?php endif; ?>
+                <div class="card-top-row">
+                    <?php if ($is_kamis): ?>
+                        <span class="badge-day badge-kamis">KAMIS</span>
+                    <?php else: ?>
+                        <span class="badge-day badge-senin">SENIN</span>
+                    <?php endif; ?>
 
-                        <?php if ($ada_anggota): ?>
-                            <span class="badge-count badge-count-filled"><?= $jml_anggota ?> Orang</span>
-                        <?php else: ?>
-                            <span class="badge-count badge-count-empty">0 Orang</span>
-                        <?php endif; ?>
-                    </div>
+                    <?php if ($ada_anggota): ?>
+                        <span class="badge-count badge-count-filled"><?= $jml_anggota ?> Orang</span>
+                    <?php else: ?>
+                        <span class="badge-count badge-count-empty">0 Orang</span>
+                    <?php endif; ?>
+                </div>
 
-                    <div class="card-date">
-                        <?= format_tanggal_indo($tgl) ?>
-                    </div>
+                <div class="card-date">
+                    <?= format_tanggal_indo($tgl) ?>
+                </div>
 
-                    <div class="members-container">
-                        <?php if ($ada_anggota): ?>
-                            <?php foreach ($info['anggota'] as $piket): ?>
-                                <div class="member-card">
-                                    <div class="member-avatar">
-                                        <?= dapatkan_inisial($piket['nama']) ?>
-                                    </div>
-                                    <div class="member-details">
-                                        <div class="member-name"><?= htmlspecialchars($piket['nama']) ?></div>
-                                        <div class="member-divisi"><?= htmlspecialchars($piket['nama_divisi']) ?></div>
-                                    </div>
+                <div class="members-container">
+                    <?php if ($ada_anggota): ?>
+                        <?php foreach ($info['anggota'] as $piket): ?>
+                            <div class="member-card">
+                                <div class="member-avatar">
+                                    <?= dapatkan_inisial($piket['nama']) ?>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="empty-state">
-                                <span>Belum ada pengurus piket</span>
+                                <div class="member-details">
+                                    <div class="member-name"><?= htmlspecialchars($piket['nama']) ?></div>
+                                    <div class="member-divisi"><?= htmlspecialchars($piket['nama_divisi']) ?></div>
+                                </div>
                             </div>
-                        <?php endif; ?>
-                    </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <span>Belum ada pengurus piket</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>
-    </div>
-
-    <div class="document-footer">
-        <div>
-            Dicetak pada: <?= date('d/m/Y H:i') ?> WIB<br>
-            * Wajib hadir tepat waktu sesuai jadwal piket masing-masing.
-        </div>
-        <div class="ttd-box">
-            Mengetahui,<br>
-            Koordinator Piket Himpunan
-            <div class="ttd-space"></div>
-            <div class="ttd-line">( _______________________ )</div>
-        </div>
     </div>
 </body>
 </html>

@@ -237,15 +237,6 @@ require_once __DIR__ . '/header.php';
                 </button>
             </form>
 
-            <a href="schedule.php?export=excel&bulan=<?= $bulan_terpilih ?>&tahun=<?= $tahun_terpilih ?>"
-               class="px-4 py-2 bg-white border-2 border-black text-black font-mono font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition flex items-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v6m0 0l-2.5-2.5M12 17l2.5-2.5"/>
-                </svg>
-                <span>EXPORT EXCEL (.XLSX)</span>
-            </a>
-
             <a href="export_pdf.php?bulan=<?= $bulan_terpilih ?>&tahun=<?= $tahun_terpilih ?>" target="_blank"
                class="px-4 py-2 bg-[#B8E926] border-2 border-black text-black font-mono font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

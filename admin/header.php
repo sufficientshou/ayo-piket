@@ -86,7 +86,7 @@ $halaman_saat_ini = basename($_SERVER['PHP_SELF']);
                                 ADMIN
                             </span>
                         </div>
-                        <span class="font-mono text-[10px] sm:text-xs tracking-widest text-slate-700 font-bold uppercase mt-1 leading-none">PANEL ADMINISTRATOR</span>
+                        <span class="font-mono text-[10px] sm:text-xs tracking-widest text-slate-700 font-bold uppercase mt-1 leading-none">KHUSUS ATMIN</span>
                     </div>
                 </a>
 
