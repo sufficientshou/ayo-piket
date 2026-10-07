@@ -48,6 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atmint - Himpunan Mahasiswa Informatika Unsika</title>
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/logo.png') ?>?v=<?= time() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= base_url('assets/images/logo.png') ?>?v=<?= time() ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('assets/images/logo.png') ?>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -124,9 +127,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
         </script>
     <?php endif; ?>
-
-    <div class="fixed top-24 left-8 w-16 h-16 border-2 border-dashed border-zinc-400 pointer-events-none select-none hidden lg:block z-0"></div>
-    <div class="fixed bottom-24 right-12 w-28 h-36 bg-[#e7ebb9]/60 border border-zinc-300 rotate-12 pointer-events-none select-none hidden lg:block -z-10 shadow-sm"></div>
 
     <div class="w-full px-4 sm:px-8 py-5 flex justify-end relative z-30">
         <a href="../index.php" class="inline-flex items-center gap-2 bg-white border-2 border-black px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider neo-shadow-sm hover:translate-x-[1px] hover:translate-y-[1px] transition">

@@ -8,8 +8,11 @@ function base_url($path = "") {
     $host = $_SERVER['HTTP_HOST'];
     $script = dirname($_SERVER['SCRIPT_NAME']);
     $folder = trim(str_replace('\\', '/', $script), '/');
-    $folder_root = explode('/', $folder)[0];
-    $root = $folder_root ? "/" . $folder_root : "";
+    $parts = $folder ? explode('/', $folder) : [];
+    if (!empty($parts) && in_array(end($parts), ['admin', 'includes'])) {
+        array_pop($parts);
+    }
+    $root = !empty($parts) ? "/" . implode('/', $parts) : "";
     return $protokol . "://" . $host . $root . "/" . ltrim($path, '/');
 }
 

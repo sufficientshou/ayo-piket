@@ -41,6 +41,9 @@ $total_sesi = count($daftar_tanggal);
 <head>
     <meta charset="UTF-8">
     <title>Jadwal Piket <?= $daftar_nama_bulan[$bulan] ?> <?= $tahun ?></title>
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/logo.png') ?>?v=<?= time() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= base_url('assets/images/logo.png') ?>?v=<?= time() ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('assets/images/logo.png') ?>">
     <style>
         @page {
             size: A4 landscape;

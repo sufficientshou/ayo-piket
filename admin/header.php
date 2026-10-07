@@ -13,6 +13,9 @@ $halaman_saat_ini = basename($_SERVER['PHP_SELF']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($judul_halaman) ? $judul_halaman . ' - Himpunan Mahasiswa Informatika Unsika' : 'Atmint - Himpunan Mahasiswa Informatika Unsika' ?></title>
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/logo.png') ?>?v=<?= time() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= base_url('assets/images/logo.png') ?>?v=<?= time() ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('assets/images/logo.png') ?>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
