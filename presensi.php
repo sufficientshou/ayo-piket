@@ -75,7 +75,7 @@ $stmt_hari_ini = $koneksi->query("
 ");
 $presensi_hari_ini = $stmt_hari_ini->fetchAll();
 
-$judul_halaman = "Form Presensi Piket";
+$judul_halaman = "Form Piket";
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -203,28 +203,23 @@ require_once __DIR__ . '/includes/header.php';
                         <div id="modalError" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
                             <div class="bg-[#FAF8F5] border-2 border-black neo-shadow-lg max-w-lg w-full overflow-hidden relative">
                                 <div class="h-3.5 bg-[#E84125] border-b-2 border-black"></div>
-                                <div class="p-6 sm:p-8">
-                                    <div class="flex items-start gap-4 sm:gap-5">
-                                        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-[#E84125] text-white border-2 border-black neo-shadow-sm flex items-center justify-center shrink-0">
-                                            <span class="font-mono font-black text-2xl sm:text-3xl">!</span>
-                                        </div>
-                                        <div class="flex-grow">
-                                            <span class="bg-[#E84125] text-white px-2.5 py-0.5 text-[11px] font-mono font-bold uppercase tracking-wider">
-                                                PERINGATAN
-                                            </span>
-                                            <h3 class="text-xl sm:text-2xl font-black uppercase text-black tracking-tight mt-1.5 leading-tight">
-                                                GAGAL MENGIRIM
-                                            </h3>
-                                            <p class="text-xs sm:text-sm lg:text-base font-mono text-slate-800 mt-2 leading-relaxed">
-                                                <?= $pesan_error ?>
-                                            </p>
-                                        </div>
+                                <div class="p-6 sm:p-7">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="bg-[#E84125] text-white px-2.5 py-0.5 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider">
+                                            PERINGATAN
+                                        </span>
+                                        <button type="button" onclick="document.getElementById('modalError').remove()" class="w-7 h-7 border-2 border-black bg-white flex items-center justify-center font-bold text-sm hover:bg-black hover:text-white transition cursor-pointer">&times;</button>
                                     </div>
+                                    <h3 class="text-lg sm:text-xl font-black uppercase text-black tracking-tight mt-3 leading-tight">
+                                        GAGAL MENGIRIM
+                                    </h3>
+                                    <p class="text-xs sm:text-sm font-mono text-slate-800 mt-2 leading-relaxed">
+                                        <?= $pesan_error ?>
+                                    </p>
                                 </div>
                                 <div class="px-6 py-4 bg-white border-t-2 border-black flex justify-end">
-                                    <button type="button" onclick="document.getElementById('modalError').remove()" class="px-6 py-2.5 bg-black text-white hover:bg-slate-800 border-2 border-black font-mono font-bold text-xs sm:text-sm uppercase tracking-wider neo-shadow-sm neo-btn transition flex items-center gap-2">
-                                        <span>TUTUP</span>
-                                        <span class="text-base font-bold">&times;</span>
+                                    <button type="button" onclick="document.getElementById('modalError').remove()" class="px-5 py-2 bg-black hover:bg-slate-800 text-white border-2 border-black font-mono font-bold text-xs uppercase tracking-wider neo-shadow-sm neo-btn transition cursor-pointer">
+                                        TUTUP
                                     </button>
                                 </div>
                             </div>
@@ -382,7 +377,7 @@ require_once __DIR__ . '/includes/header.php';
 
                             <input type="file" name="foto_bukti" id="foto_bukti" required accept="image/jpeg,image/png,image/webp" class="hidden" onchange="perbaruiPratinjauFile(this)">
 
-                            <div id="dropzoneFoto" onclick="document.getElementById('foto_bukti').click()""
+                            <div id="dropzoneFoto" onclick="document.getElementById('foto_bukti').click()"
                                  class="border-2 border-dashed border-black bg-[#FAF8F5] p-6 sm:p-8 lg:p-10 text-center flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 transition">
                                 <div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#B8E926] border-2 border-black flex items-center justify-center mb-3 neo-shadow-sm">
                                     <svg class="w-6 h-6 sm:w-7 sm:h-7 text-black" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -527,20 +522,35 @@ document.addEventListener('click', function(e) {
 });
 
 function perbaruiPratinjauFile(input) {
+    var dot = document.getElementById('dotStatusFile');
+    var badge = document.getElementById('badgeStatusFile');
+    var nama = document.getElementById('namaFilePilihan');
+    var ukuran = document.getElementById('ukuranFilePilihan');
+
     if (input.files && input.files[0]) {
         var file = input.files[0];
         var sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
         var sizeStr = sizeInMB >= 1 ? sizeInMB + ' MB' : (file.size / 1024).toFixed(0) + ' KB';
 
-        document.getElementById('namaFilePilihan').textContent = file.name;
-        document.getElementById('ukuranFilePilihan').textContent = '(' + sizeStr + ')';
+        if (nama) nama.textContent = file.name;
+        if (ukuran) ukuran.textContent = '(' + sizeStr + ')';
 
-        var dot = document.getElementById('dotStatusFile');
-        var badge = document.getElementById('badgeStatusFile');
-
-        dot.className = 'w-3 h-3 rounded-full bg-emerald-500 inline-block shrink-0';
-        badge.className = 'bg-[#B8E926] text-black border border-black px-2.5 py-0.5 text-xs font-mono font-bold uppercase shrink-0';
-        badge.textContent = 'SIAP UNGGAH';
+        if (dot) dot.classList.add('hidden');
+        if (badge) {
+            badge.className = 'bg-[#B8E926] text-black border border-black px-2.5 py-0.5 text-xs font-mono font-bold uppercase shrink-0';
+            badge.textContent = 'SIAP UNGGAH';
+        }
+    } else {
+        if (nama) nama.textContent = 'Belum ada file dipilih';
+        if (ukuran) ukuran.textContent = '';
+        if (dot) {
+            dot.className = 'w-3 h-3 rounded-full bg-slate-300 inline-block shrink-0';
+            dot.classList.remove('hidden');
+        }
+        if (badge) {
+            badge.className = 'bg-slate-100 text-slate-600 border border-black px-2.5 py-0.5 text-xs font-mono font-bold uppercase shrink-0';
+            badge.textContent = 'MENUNGGU';
+        }
     }
 }
 

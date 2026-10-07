@@ -121,7 +121,7 @@ if ($filter_status === 'valid') {
     $label_status_terpilih = 'MENUNGGU REVIEW';
 }
 
-$judul_halaman = "Rekap Presensi & Dashboard";
+$judul_halaman = "Dashboard";
 require_once __DIR__ . '/header.php';
 ?>
 
@@ -300,7 +300,7 @@ require_once __DIR__ . '/header.php';
                                             </a>
                                         <?php endif; ?>
                                         <a href="index.php?hapus_presensi_id=<?= $pres['id'] ?>"
-                                           onclick="return confirm('Hapus bukti presensi milik <?= htmlspecialchars($pres['nama']) ?>?')"
+                                           onclick="bukaKonfirmasi({ href: this.href, pesan: 'Hapus bukti presensi milik <?= htmlspecialchars($pres['nama'], ENT_QUOTES) ?>?', judul: 'HAPUS BUKTI PRESENSI', badge: 'HAPUS', tombolTeks: 'YA, HAPUS' }); return false;"
                                            class="w-24 sm:w-28 py-2 sm:py-2.5 border-2 border-[#E84125] bg-white hover:bg-red-50 text-[#E84125] font-mono font-bold text-xs sm:text-sm uppercase neo-shadow-sm neo-btn transition inline-flex items-center justify-center">
                                             Hapus
                                         </a>

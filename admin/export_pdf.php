@@ -154,11 +154,12 @@ $total_sesi = count($daftar_tanggal);
             background: #FAF8F5;
             border: 2px solid #000000;
             box-shadow: 3px 3px 0px #000000;
-            padding: 14px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             min-width: 0;
-            min-height: 190px;
+            min-height: 250px;
             height: 100%;
             break-inside: avoid;
             page-break-inside: avoid;
@@ -261,7 +262,7 @@ $total_sesi = count($daftar_tanggal);
         .empty-state {
             border: 2px dashed #94a3b8;
             background: #ffffff;
-            padding: 12px 8px;
+            padding: 16px 8px;
             text-align: center;
             font-family: monospace;
             font-size: 11px;
@@ -271,7 +272,8 @@ $total_sesi = count($daftar_tanggal);
             align-items: center;
             justify-content: center;
             flex-grow: 1;
-            min-height: 60px;
+            min-height: 110px;
+            height: 100%;
         }
     </style>
 </head>
@@ -302,22 +304,24 @@ $total_sesi = count($daftar_tanggal);
                 $is_kamis = ($info['hari'] === 'Kamis');
             ?>
             <div class="neo-card">
-                <div class="card-top-row">
-                    <?php if ($is_kamis): ?>
-                        <span class="badge-day badge-kamis">KAMIS</span>
-                    <?php else: ?>
-                        <span class="badge-day badge-senin">SENIN</span>
-                    <?php endif; ?>
+                <div>
+                    <div class="card-top-row">
+                        <?php if ($is_kamis): ?>
+                            <span class="badge-day badge-kamis">KAMIS</span>
+                        <?php else: ?>
+                            <span class="badge-day badge-senin">SENIN</span>
+                        <?php endif; ?>
 
-                    <?php if ($ada_anggota): ?>
-                        <span class="badge-count badge-count-filled"><?= $jml_anggota ?> Orang</span>
-                    <?php else: ?>
-                        <span class="badge-count badge-count-empty">0 Orang</span>
-                    <?php endif; ?>
-                </div>
+                        <?php if ($ada_anggota): ?>
+                            <span class="badge-count badge-count-filled"><?= $jml_anggota ?> Orang</span>
+                        <?php else: ?>
+                            <span class="badge-count badge-count-empty">0 Orang</span>
+                        <?php endif; ?>
+                    </div>
 
-                <div class="card-date">
-                    <?= format_tanggal_indo($tgl) ?>
+                    <div class="card-date">
+                        <?= format_tanggal_indo($tgl) ?>
+                    </div>
                 </div>
 
                 <div class="members-container">

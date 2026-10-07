@@ -10,7 +10,7 @@ $flash = get_flash_message();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($judul_halaman) ? $judul_halaman . ' - Ayo Piket' : 'Ayo Piket - Sistem Piket Himpunan' ?></title>
+    <title><?= isset($judul_halaman) ? $judul_halaman . ' - Himpunan Mahasiswa Informatika Unsika' : 'ayo piket - Himpunan Mahasiswa Informatika Unsika' ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -191,36 +191,25 @@ $flash = get_flash_message();
         <div id="modalFlash" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
             <div class="bg-[#FAF8F5] border-2 border-black neo-shadow-lg max-w-lg w-full overflow-hidden relative">
                 <div class="h-3.5 <?= $is_sukses ? 'bg-[#164E33]' : 'bg-[#E84125]' ?> border-b-2 border-black"></div>
-                <div class="p-6 sm:p-8">
-                    <div class="flex items-start gap-4 sm:gap-5">
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 <?= $is_sukses ? 'bg-[#B8E926]' : 'bg-[#E84125] text-white' ?> border-2 border-black neo-shadow-sm flex items-center justify-center shrink-0">
-                            <?php if ($is_sukses): ?>
-                                <svg class="w-8 h-8 sm:w-9 sm:h-9 text-black stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                            <?php else: ?>
-                                <span class="font-mono font-black text-2xl sm:text-3xl">!</span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="flex-grow">
-                            <span class="<?= $is_sukses ? 'bg-[#164E33]' : 'bg-[#E84125]' ?> text-white px-2.5 py-0.5 text-[11px] font-mono font-bold uppercase tracking-wider">
-                                <?= $badge_text ?>
-                            </span>
-                            <h3 class="text-xl sm:text-2xl font-black uppercase text-black tracking-tight mt-1.5 leading-tight">
-                                <?= $judul_modal ?>
-                            </h3>
-                            <?php if (!$is_sukses && !empty($flash['pesan'])): ?>
-                                <p class="text-xs sm:text-sm lg:text-base font-mono text-slate-800 mt-2 leading-relaxed">
-                                    <?= $flash['pesan'] ?>
-                                </p>
-                            <?php endif; ?>
-                        </div>
+                <div class="p-6 sm:p-7">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="<?= $is_sukses ? 'bg-[#164E33]' : 'bg-[#E84125]' ?> text-white px-2.5 py-0.5 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider">
+                            <?= $badge_text ?>
+                        </span>
+                        <button type="button" onclick="tutupPopupFlash()" class="w-7 h-7 border-2 border-black bg-white flex items-center justify-center font-bold text-sm hover:bg-black hover:text-white transition cursor-pointer">&times;</button>
                     </div>
+                    <h3 class="text-lg sm:text-xl font-black uppercase text-black tracking-tight mt-3 leading-tight">
+                        <?= $judul_modal ?>
+                    </h3>
+                    <?php if (!$is_sukses && !empty($flash['pesan'])): ?>
+                        <p class="text-xs sm:text-sm font-mono text-slate-800 mt-2 leading-relaxed">
+                            <?= $flash['pesan'] ?>
+                        </p>
+                    <?php endif; ?>
                 </div>
                 <div class="px-6 py-4 bg-white border-t-2 border-black flex justify-end">
-                    <button type="button" onclick="tutupPopupFlash()" class="px-6 py-2.5 bg-black text-white hover:bg-slate-800 border-2 border-black font-mono font-bold text-xs sm:text-sm uppercase tracking-wider neo-shadow-sm neo-btn transition flex items-center gap-2">
-                        <span>TUTUP</span>
-                        <span class="text-base font-bold">&times;</span>
+                    <button type="button" onclick="tutupPopupFlash()" class="px-5 py-2 bg-black hover:bg-slate-800 text-white border-2 border-black font-mono font-bold text-xs uppercase tracking-wider neo-shadow-sm neo-btn transition cursor-pointer">
+                        TUTUP
                     </button>
                 </div>
             </div>

@@ -13,7 +13,6 @@ $data_edit = null;
 $stmt_div = $koneksi->query("SELECT * FROM divisions ORDER BY nama_divisi ASC");
 $daftar_divisi = $stmt_div->fetchAll();
 
-// Handle Form Submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nim = sanitize($_POST['nim'] ?? '');
     $nama = sanitize($_POST['nama'] ?? '');
@@ -39,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle Hapus
 if ($aksi === 'hapus' && $id_edit > 0) {
     $stmt = $koneksi->prepare("DELETE FROM members WHERE id = ?");
     $stmt->execute([$id_edit]);
@@ -48,14 +46,12 @@ if ($aksi === 'hapus' && $id_edit > 0) {
     exit();
 }
 
-// Handle Edit
 if ($aksi === 'edit' && $id_edit > 0) {
     $stmt = $koneksi->prepare("SELECT * FROM members WHERE id = ? LIMIT 1");
     $stmt->execute([$id_edit]);
     $data_edit = $stmt->fetch();
 }
 
-// Search and Filter
 $search = sanitize($_GET['search'] ?? '');
 $filter_divisi = (int)($_GET['filter_divisi'] ?? 0);
 
@@ -87,11 +83,9 @@ $stmt_members = $koneksi->prepare($query_str);
 $stmt_members->execute($params);
 $daftar_pengurus = $stmt_members->fetchAll();
 
-// Statistics
 $stmt_all_members = $koneksi->query("SELECT id FROM members");
 $total_semua = $stmt_all_members->rowCount();
 
-// Label for Dropdowns
 $label_filter_divisi = 'Semua Divisi';
 if ($filter_divisi > 0) {
     foreach ($daftar_divisi as $d) {
@@ -112,7 +106,6 @@ if ($data_edit && !empty($data_edit['division_id'])) {
     }
 }
 
-// Pagination
 $halaman = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 10;
 $total_hasil = count($daftar_pengurus);
@@ -122,13 +115,12 @@ $daftar_pengurus_tampil = array_slice($daftar_pengurus, $offset, $per_page);
 $offset_start = $total_hasil > 0 ? $offset + 1 : 0;
 $offset_end = min($offset + $per_page, $total_hasil);
 
-$judul_halaman = "Kelola Data Pengurus";
+$judul_halaman = "Pengurus";
 require_once __DIR__ . '/header.php';
 ?>
 
 <div class="space-y-6 sm:space-y-7">
 
-    <!-- Top Header & Badges -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tight text-black">
@@ -143,13 +135,10 @@ require_once __DIR__ . '/header.php';
         </div>
     </div>
 
-    <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        <!-- Left Column: Form Input -->
         <div class="lg:col-span-4 space-y-6">
 
-            <!-- Card Form Input -->
             <div class="bg-white border-2 border-black shadow-[4px_4px_0px_#000] p-5 sm:p-6">
                 <div class="flex items-center justify-between gap-2 mb-5">
                     <div class="flex items-center gap-2">
@@ -266,12 +255,9 @@ require_once __DIR__ . '/header.php';
 
         </div>
 
-        <!-- Right Column: Table -->
         <div class="lg:col-span-8 space-y-6">
 
-            <!-- Card Table Daftar Pengurus -->
             <div class="bg-white border-2 border-black shadow-[4px_4px_0px_#000] overflow-hidden">
-                <!-- Table Header Controls -->
                 <div class="p-4 sm:p-5 border-b-2 border-black flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <h2 class="text-base sm:text-lg font-black uppercase tracking-tight text-black">
@@ -292,7 +278,6 @@ require_once __DIR__ . '/header.php';
                                    class="pl-8 pr-3 py-2 bg-transparent font-mono text-xs text-black placeholder:text-zinc-400 focus:outline-none w-36 sm:w-44">
                         </div>
 
-                        <!-- Custom Dropdown Divisi Filter -->
                         <div class="relative border-r-2 border-black" id="wrapper_filter_divisi">
                             <input type="hidden" name="filter_divisi" id="input_filter_divisi" value="<?= $filter_divisi ?>">
                             <button type="button" onclick="toggleDropdownFilter()" id="trigger_filter_divisi"
@@ -332,7 +317,6 @@ require_once __DIR__ . '/header.php';
                     </form>
                 </div>
 
-                <!-- Table Content -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead class="border-b-2 border-black bg-[#FAF8F5] font-mono text-[11px] font-bold uppercase tracking-wider text-zinc-600">
@@ -387,7 +371,7 @@ require_once __DIR__ . '/header.php';
                                                 Edit
                                             </a>
                                             <a href="members.php?aksi=hapus&id=<?= $m['id'] ?>"
-                                               onclick="return confirm('Hapus data pengurus <?= sanitize($m['nama']) ?>?');"
+                                               onclick="bukaKonfirmasi({ href: this.href, pesan: 'Hapus data pengurus <?= sanitize($m['nama']) ?>?', judul: 'HAPUS DATA PENGURUS', badge: 'HAPUS PENGURUS', tombolTeks: 'YA, HAPUS' }); return false;"
                                                class="px-2.5 py-1 bg-[#E84125] hover:bg-red-700 text-white border-2 border-black shadow-[2px_2px_0px_#000] inline-block hover:translate-x-[1px] hover:translate-y-[1px] transition">
                                                 Hapus
                                             </a>
@@ -399,7 +383,6 @@ require_once __DIR__ . '/header.php';
                     </table>
                 </div>
 
-                <!-- Table Footer & Pagination -->
                 <div class="p-4 sm:px-5 sm:py-3.5 border-t-2 border-black flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[#FAF8F5]">
                     <span class="font-mono text-xs text-zinc-700 font-bold">
                         Menampilkan <?= $offset_start ?> - <?= $offset_end ?> dari <?= $total_hasil ?> Pengurus Terdaftar
@@ -540,13 +523,12 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Form submit validation
 var formMember = document.getElementById('form_member');
 if (formMember) {
     formMember.addEventListener('submit', function(e) {
         var divVal = document.getElementById('input_form_divisi').value;
         if (!divVal || parseInt(divVal) <= 0) {
-            alert('Silakan pilih divisi terlebih dahulu!');
+            bukaAlert('Silakan pilih divisi terlebih dahulu!', 'PILIH DIVISI');
             e.preventDefault();
         }
     });

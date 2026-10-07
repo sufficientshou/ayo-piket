@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/config/database.php';
-$judul_halaman = "Jadwal & Presensi Piket";
+$judul_halaman = "ayo piket";
 require_once __DIR__ . '/includes/header.php';
 
 $bulan_terpilih = isset($_GET['bulan']) ? (int)$_GET['bulan'] : (int)date('n');

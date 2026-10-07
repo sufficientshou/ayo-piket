@@ -67,13 +67,12 @@ $daftar_divisi = $stmt->fetchAll();
 $stmt_total = $koneksi->query("SELECT id FROM divisions");
 $total_divisi = $stmt_total->rowCount();
 
-$judul_halaman = "Kelola Data Divisi";
+$judul_halaman = "Divisi";
 require_once __DIR__ . '/header.php';
 ?>
 
 <div class="space-y-6 sm:space-y-7">
 
-    <!-- Top Header & Badges -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tight text-black">
@@ -88,13 +87,10 @@ require_once __DIR__ . '/header.php';
         </div>
     </div>
 
-    <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        <!-- Left Column: Form Input -->
         <div class="lg:col-span-4 space-y-6">
 
-            <!-- Card Form Input -->
             <div class="bg-white border-2 border-black shadow-[4px_4px_0px_#000] p-5 sm:p-6">
                 <div class="flex items-center justify-between gap-2 mb-5">
                     <div class="flex items-center gap-2">
@@ -144,12 +140,9 @@ require_once __DIR__ . '/header.php';
 
         </div>
 
-        <!-- Right Column: Table -->
         <div class="lg:col-span-8 space-y-6">
 
-            <!-- Card Table Daftar Divisi -->
             <div class="bg-white border-2 border-black shadow-[4px_4px_0px_#000] overflow-hidden">
-                <!-- Table Header Controls -->
                 <div class="p-4 sm:p-5 border-b-2 border-black flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <h2 class="text-base sm:text-lg font-black uppercase tracking-tight text-black">
@@ -182,7 +175,6 @@ require_once __DIR__ . '/header.php';
                     </form>
                 </div>
 
-                <!-- Table Content -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead class="border-b-2 border-black bg-[#FAF8F5] font-mono text-[11px] font-bold uppercase tracking-wider text-zinc-600">
@@ -222,7 +214,7 @@ require_once __DIR__ . '/header.php';
                                                 Edit
                                             </a>
                                             <a href="divisions.php?aksi=hapus&id=<?= $div['id'] ?>"
-                                               onclick="return confirm('Hapus divisi <?= sanitize($div['nama_divisi']) ?>? Pengurus di divisi ini juga akan terhapus.');"
+                                               onclick="bukaKonfirmasi({ href: this.href, pesan: 'Hapus divisi <?= sanitize($div['nama_divisi']) ?>? Pengurus di divisi ini juga akan terhapus.', judul: 'HAPUS DIVISI', badge: 'HAPUS DIVISI', tombolTeks: 'YA, HAPUS' }); return false;"
                                                class="px-2.5 py-1 bg-[#E84125] hover:bg-red-700 text-white border-2 border-black shadow-[2px_2px_0px_#000] inline-block hover:translate-x-[1px] hover:translate-y-[1px] transition">
                                                 Hapus
                                             </a>
@@ -234,7 +226,6 @@ require_once __DIR__ . '/header.php';
                     </table>
                 </div>
 
-                <!-- Table Footer -->
                 <div class="p-4 sm:px-5 sm:py-3.5 border-t-2 border-black flex items-center justify-between bg-[#FAF8F5]">
                     <span class="font-mono text-xs text-zinc-700 font-bold">
                         Menampilkan <?= count($daftar_divisi) ?> dari <?= $total_divisi ?> Divisi Terdaftar

@@ -152,11 +152,11 @@ $total_sesi = count($daftar_tanggal);
             background: #FAF8F5;
             border: 2px solid #000000;
             box-shadow: 3px 3px 0px #000000;
-            padding: 14px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 180px;
+            min-height: 250px;
             break-inside: avoid;
             page-break-inside: avoid;
         }
@@ -209,6 +209,7 @@ $total_sesi = count($daftar_tanggal);
             flex-direction: column;
             gap: 8px;
             flex-grow: 1;
+            justify-content: center;
         }
         .member-card {
             background: #ffffff;
@@ -267,31 +268,8 @@ $total_sesi = count($daftar_tanggal);
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 60px;
-        }
-        .document-footer {
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 2px solid #000000;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            font-family: monospace;
-            font-size: 11px;
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-        .ttd-box {
-            text-align: center;
-            font-family: sans-serif;
-            font-size: 11px;
-        }
-        .ttd-space {
-            height: 44px;
-        }
-        .ttd-line {
-            font-weight: bold;
-            font-family: monospace;
+            min-height: 110px;
+            height: 100%;
         }
     </style>
 </head>
@@ -340,42 +318,29 @@ $total_sesi = count($daftar_tanggal);
                     <div class="card-date">
                         <?= format_tanggal_indo($tgl) ?>
                     </div>
+                </div>
 
-                    <div class="members-container">
-                        <?php if ($ada_anggota): ?>
-                            <?php foreach ($info['anggota'] as $piket): ?>
-                                <div class="member-card">
-                                    <div class="member-avatar">
-                                        <?= dapatkan_inisial($piket['nama']) ?>
-                                    </div>
-                                    <div class="member-details">
-                                        <div class="member-name"><?= htmlspecialchars($piket['nama']) ?></div>
-                                        <div class="member-divisi"><?= htmlspecialchars($piket['nama_divisi']) ?></div>
-                                    </div>
+                <div class="members-container">
+                    <?php if ($ada_anggota): ?>
+                        <?php foreach ($info['anggota'] as $piket): ?>
+                            <div class="member-card">
+                                <div class="member-avatar">
+                                    <?= dapatkan_inisial($piket['nama']) ?>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="empty-state">
-                                <span>Belum ada pengurus piket</span>
+                                <div class="member-details">
+                                    <div class="member-name"><?= htmlspecialchars($piket['nama']) ?></div>
+                                    <div class="member-divisi"><?= htmlspecialchars($piket['nama_divisi']) ?></div>
+                                </div>
                             </div>
-                        <?php endif; ?>
-                    </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <span>Belum ada pengurus piket</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>
-    </div>
-
-    <div class="document-footer">
-        <div>
-            Dicetak pada: <?= date('d/m/Y H:i') ?> WIB<br>
-            * Wajib hadir tepat waktu sesuai jadwal piket masing-masing.
-        </div>
-        <div class="ttd-box">
-            Mengetahui,<br>
-            Koordinator Piket Himpunan
-            <div class="ttd-space"></div>
-            <div class="ttd-line">( _______________________ )</div>
-        </div>
     </div>
 </body>
 </html>

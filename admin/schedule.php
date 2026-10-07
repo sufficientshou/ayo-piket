@@ -207,7 +207,7 @@ $slot_kosong = max(0, $total_kapasitas - $total_terjadwal);
 $persen_terisi = $total_kapasitas > 0 ? round(($slot_terisi / $total_kapasitas) * 100) : 0;
 $distinct_pengurus = count(array_unique(array_column($daftar_jadwal_raw, 'member_id')));
 
-$judul_halaman = "Jadwal Piket & Gacha";
+$judul_halaman = "Jadwal";
 require_once __DIR__ . '/header.php';
 ?>
 
@@ -280,14 +280,11 @@ require_once __DIR__ . '/header.php';
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-            <form action="schedule.php?bulan=<?= $bulan_terpilih ?>&tahun=<?= $tahun_terpilih ?>" method="POST"
-                  onsubmit="return confirm('Jalankan gacha acak? Jadwal lama di bulan ini akan digantikan secara adil.')">
-                <input type="hidden" name="aksi" value="gacha">
-                <button type="submit" class="px-4 py-2.5 bg-[#164E33] hover:bg-[#123e29] text-white border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    <span>GACHA JADWAL (ACAK RATA DIVISI)</span>
-                </button>
-            </form>
+            <button type="button" onclick="bukaModalGacha()"
+                    class="px-4 py-2.5 bg-[#164E33] hover:bg-[#123e29] text-white border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span>GACHA JADWAL (ACAK RATA DIVISI)</span>
+            </button>
 
             <button type="button" onclick="bukaModalManual()"
                     class="px-4 py-2.5 bg-white hover:bg-zinc-50 text-black border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
@@ -295,14 +292,11 @@ require_once __DIR__ . '/header.php';
                 <span>+ TAMBAH PETUGAS MANUAL</span>
             </button>
 
-            <form action="schedule.php?bulan=<?= $bulan_terpilih ?>&tahun=<?= $tahun_terpilih ?>" method="POST"
-                  onsubmit="return confirm('Kosongkan semua jadwal bulan ini?')">
-                <input type="hidden" name="aksi" value="reset">
-                <button type="submit" class="px-4 py-2.5 bg-white hover:bg-red-50 text-[#dc2626] border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    <span>RESET JADWAL</span>
-                </button>
-            </form>
+            <button type="button" onclick="bukaModalReset()"
+                    class="px-4 py-2.5 bg-white hover:bg-red-50 text-[#dc2626] border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span>RESET JADWAL</span>
+            </button>
         </div>
     </div>
 
@@ -374,7 +368,7 @@ require_once __DIR__ . '/header.php';
                                         </div>
                                     </div>
                                     <a href="schedule.php?bulan=<?= $bulan_terpilih ?>&tahun=<?= $tahun_terpilih ?>&hapus_id=<?= $piket['schedule_id'] ?>"
-                                       onclick="return confirm('Hapus <?= htmlspecialchars($piket['nama']) ?> dari jadwal tanggal ini?')"
+                                       onclick="bukaKonfirmasi({ href: this.href, pesan: 'Hapus <?= htmlspecialchars($piket['nama'], ENT_QUOTES) ?> dari jadwal tanggal ini?', judul: 'HAPUS DARI JADWAL', badge: 'HAPUS JADWAL', tombolTeks: 'YA, HAPUS' }); return false;"
                                        class="w-7 h-7 border-2 border-black bg-white hover:bg-[#E84125] hover:text-white flex items-center justify-center font-mono font-bold text-sm transition shrink-0"
                                        title="Hapus">
                                         &times;
@@ -446,6 +440,78 @@ require_once __DIR__ . '/header.php';
     </div>
 </div>
 
+<div id="modal_gacha" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden" onclick="tutupModalGacha()">
+    <div class="bg-[#FAF8F5] border-2 border-black shadow-[6px_6px_0px_#000] max-w-lg w-full overflow-hidden relative" onclick="event.stopPropagation()">
+        <div class="h-3.5 bg-[#164E33] border-b-2 border-black"></div>
+        <div class="p-6 sm:p-7">
+            <div class="flex items-center justify-between gap-2">
+                <span class="bg-[#164E33] text-white px-2.5 py-0.5 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider">
+                    KONFIRMASI GACHA
+                </span>
+                <button type="button" onclick="tutupModalGacha()" class="w-7 h-7 border-2 border-black bg-white flex items-center justify-center font-bold text-sm hover:bg-black hover:text-white transition cursor-pointer">&times;</button>
+            </div>
+            <h3 class="text-lg sm:text-xl font-black uppercase text-black tracking-tight mt-3 leading-tight">
+                ACAK JADWAL PIKET?
+            </h3>
+            <p class="text-xs sm:text-sm font-mono text-slate-800 mt-2 leading-relaxed">
+                Sistem akan mengacak dan mendistribusikan penugasan secara adil dan merata per divisi. Jadwal lama pada periode ini akan digantikan.
+            </p>
+
+            <div class="mt-4 p-3 bg-white border-2 border-black font-mono text-xs flex flex-wrap items-center justify-between gap-2 shadow-[2px_2px_0px_#000]">
+                <span class="text-slate-600 font-bold uppercase">PERIODE TARGET:</span>
+                <span class="font-bold text-black uppercase bg-[#FAF8F5] border border-black px-2 py-0.5">
+                    <?= strtoupper($daftar_nama_bulan[$bulan_terpilih]) ?> <?= $tahun_terpilih ?>
+                </span>
+            </div>
+        </div>
+        <form action="schedule.php?bulan=<?= $bulan_terpilih ?>&tahun=<?= $tahun_terpilih ?>" method="POST" class="px-6 py-4 bg-white border-t-2 border-black flex items-center justify-end gap-3">
+            <input type="hidden" name="aksi" value="gacha">
+            <button type="button" onclick="tutupModalGacha()" class="px-4 py-2 bg-white hover:bg-zinc-100 text-black border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[2px_2px_0px_#000] transition cursor-pointer">
+                BATAL
+            </button>
+            <button type="submit" class="px-5 py-2 bg-[#164E33] hover:bg-[#123e29] text-white border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[2px_2px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition cursor-pointer">
+                YA, JALANKAN GACHA
+            </button>
+        </form>
+    </div>
+</div>
+
+<div id="modal_reset" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden" onclick="tutupModalReset()">
+    <div class="bg-[#FAF8F5] border-2 border-black shadow-[6px_6px_0px_#000] max-w-lg w-full overflow-hidden relative" onclick="event.stopPropagation()">
+        <div class="h-3.5 bg-[#E84125] border-b-2 border-black"></div>
+        <div class="p-6 sm:p-7">
+            <div class="flex items-center justify-between gap-2">
+                <span class="bg-[#E84125] text-white px-2.5 py-0.5 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider">
+                    PERINGATAN BAHAYA
+                </span>
+                <button type="button" onclick="tutupModalReset()" class="w-7 h-7 border-2 border-black bg-white flex items-center justify-center font-bold text-sm hover:bg-black hover:text-white transition cursor-pointer">&times;</button>
+            </div>
+            <h3 class="text-lg sm:text-xl font-black uppercase text-black tracking-tight mt-3 leading-tight">
+                KOSONGKAN JADWAL BULAN INI?
+            </h3>
+            <p class="text-xs sm:text-sm font-mono text-slate-800 mt-2 leading-relaxed">
+                Seluruh jadwal petugas piket pada bulan ini akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.
+            </p>
+
+            <div class="mt-4 p-3 bg-red-50 border-2 border-[#E84125] font-mono text-xs flex flex-wrap items-center justify-between gap-2 shadow-[2px_2px_0px_#000]">
+                <span class="text-[#E84125] font-bold uppercase">AKAN MENGHAPUS:</span>
+                <span class="font-bold text-black uppercase bg-white border border-black px-2 py-0.5">
+                    <?= $total_sesi ?> HARI OPERASIONAL (<?= strtoupper($daftar_nama_bulan[$bulan_terpilih]) ?> <?= $tahun_terpilih ?>)
+                </span>
+            </div>
+        </div>
+        <form action="schedule.php?bulan=<?= $bulan_terpilih ?>&tahun=<?= $tahun_terpilih ?>" method="POST" class="px-6 py-4 bg-white border-t-2 border-black flex items-center justify-end gap-3">
+            <input type="hidden" name="aksi" value="reset">
+            <button type="button" onclick="tutupModalReset()" class="px-4 py-2 bg-white hover:bg-zinc-100 text-black border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[2px_2px_0px_#000] transition cursor-pointer">
+                BATAL
+            </button>
+            <button type="submit" class="px-5 py-2 bg-[#E84125] hover:bg-[#c9351d] text-white border-2 border-black font-mono font-bold text-xs uppercase tracking-wider shadow-[2px_2px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition cursor-pointer">
+                YA, KOSONGKAN JADWAL
+            </button>
+        </form>
+    </div>
+</div>
+
 <script>
 function bukaModalManual(tanggal = '') {
     if (tanggal) {
@@ -456,8 +522,27 @@ function bukaModalManual(tanggal = '') {
 function tutupModalManual() {
     document.getElementById('modal_manual').classList.add('hidden');
 }
+
+function bukaModalGacha() {
+    document.getElementById('modal_gacha').classList.remove('hidden');
+}
+function tutupModalGacha() {
+    document.getElementById('modal_gacha').classList.add('hidden');
+}
+
+function bukaModalReset() {
+    document.getElementById('modal_reset').classList.remove('hidden');
+}
+function tutupModalReset() {
+    document.getElementById('modal_reset').classList.add('hidden');
+}
+
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') tutupModalManual();
+    if (e.key === 'Escape') {
+        tutupModalManual();
+        tutupModalGacha();
+        tutupModalReset();
+    }
 });
 </script>
 

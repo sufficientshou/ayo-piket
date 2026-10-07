@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Administrator - PIKET.DEV</title>
+    <title>Atmint - Himpunan Mahasiswa Informatika Unsika</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,30 +87,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div id="modalFlash" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
             <div class="bg-[#FAF8F5] border-2 border-black neo-shadow-lg max-w-lg w-full overflow-hidden relative">
                 <div class="h-3.5 bg-[#164E33] border-b-2 border-black"></div>
-                <div class="p-6 sm:p-8">
-                    <div class="flex items-start gap-4 sm:gap-5">
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-[#B8E926] border-2 border-black neo-shadow-sm flex items-center justify-center shrink-0">
-                            <svg class="w-8 h-8 sm:w-9 sm:h-9 text-black stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                        </div>
-                        <div class="flex-grow">
-                            <span class="bg-[#164E33] text-white px-2.5 py-0.5 text-[11px] font-mono font-bold uppercase tracking-wider">
-                                BERHASIL
-                            </span>
-                            <h3 class="text-xl sm:text-2xl font-black uppercase text-black tracking-tight mt-1.5 leading-tight">
-                                LOGIN BERHASIL
-                            </h3>
-                            <p class="text-xs sm:text-sm lg:text-base font-mono text-slate-800 mt-2 leading-relaxed">
-                                Selamat datang kembali, <?= htmlspecialchars($admin_nama) ?>! Mengalihkan ke dashboard...
-                            </p>
-                        </div>
+                <div class="p-6 sm:p-7">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="bg-[#164E33] text-white px-2.5 py-0.5 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider">
+                            BERHASIL
+                        </span>
+                        <a href="index.php" class="w-7 h-7 border-2 border-black bg-white flex items-center justify-center font-bold text-sm hover:bg-black hover:text-white transition cursor-pointer">&times;</a>
                     </div>
+                    <h3 class="text-lg sm:text-xl font-black uppercase text-black tracking-tight mt-3 leading-tight">
+                        LOGIN BERHASIL
+                    </h3>
+                    <p class="text-xs sm:text-sm font-mono text-slate-800 mt-2 leading-relaxed">
+                        Selamat datang kembali, <?= htmlspecialchars($admin_nama) ?>! Mengalihkan ke dashboard...
+                    </p>
                 </div>
                 <div class="px-6 py-4 bg-white border-t-2 border-black flex justify-end">
-                    <a href="index.php" class="px-6 py-2.5 bg-black text-white hover:bg-slate-800 border-2 border-black font-mono font-bold text-xs sm:text-sm uppercase tracking-wider neo-shadow-sm neo-btn transition flex items-center gap-2">
-                        <span>MASUK KE DASHBOARD</span>
-                        <span class="text-base font-bold">&rarr;</span>
+                    <a href="index.php" class="px-5 py-2 bg-black hover:bg-slate-800 text-white border-2 border-black font-mono font-bold text-xs uppercase tracking-wider neo-shadow-sm neo-btn transition cursor-pointer">
+                        MASUK KE DASHBOARD
                     </a>
                 </div>
             </div>
@@ -201,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="password" class="font-mono text-xs font-bold text-black uppercase tracking-wider">
                                 KATA SANDI <span class="text-[#ea3829] font-black">*</span>
                             </label>
-                            <a href="javascript:void(0)" onclick="alert('Silakan hubungi Divisi Litbang / Koordinator Kesekretariatan untuk reset akun pengurus.')" class="font-mono text-xs font-bold text-[#ea3829] uppercase tracking-wider hover:underline">
+                            <a href="javascript:void(0)" onclick="bukaModalLupaPassword()" class="font-mono text-xs font-bold text-[#ea3829] uppercase tracking-wider hover:underline">
                                 LUPA PASSWORD?
                             </a>
                         </div>
@@ -255,7 +248,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </footer>
 
+    <div id="modalLupaPassword" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden" onclick="tutupModalLupaPassword()">
+        <div class="bg-[#FAF8F5] border-2 border-black neo-shadow-lg max-w-lg w-full overflow-hidden relative" onclick="event.stopPropagation()">
+            <div class="h-3.5 bg-[#E84125] border-b-2 border-black"></div>
+            <div class="p-6 sm:p-7">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="bg-[#E84125] text-white px-2.5 py-0.5 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider">
+                        BANTUAN AKUN
+                    </span>
+                    <button type="button" onclick="tutupModalLupaPassword()" class="w-7 h-7 border-2 border-black bg-white flex items-center justify-center font-bold text-sm hover:bg-black hover:text-white transition cursor-pointer">&times;</button>
+                </div>
+                <h3 class="text-lg sm:text-xl font-black uppercase text-black tracking-tight mt-3 leading-tight">
+                    RESET KATA SANDI
+                </h3>
+                <p class="text-xs sm:text-sm font-mono text-slate-800 mt-2 leading-relaxed">
+                    Silakan hubungi Divisi Litbang atau Koordinator Kesekretariatan untuk melakukan reset akun pengurus.
+                </p>
+            </div>
+            <div class="px-6 py-4 bg-white border-t-2 border-black flex justify-end">
+                <button type="button" onclick="tutupModalLupaPassword()" class="px-5 py-2 bg-black hover:bg-slate-800 text-white border-2 border-black font-mono font-bold text-xs uppercase tracking-wider neo-shadow-sm neo-btn transition cursor-pointer">
+                    MENGERTI
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function bukaModalLupaPassword() {
+            document.getElementById('modalLupaPassword').classList.remove('hidden');
+        }
+        function tutupModalLupaPassword() {
+            document.getElementById('modalLupaPassword').classList.add('hidden');
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                tutupModalLupaPassword();
+            }
+        });
+
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
