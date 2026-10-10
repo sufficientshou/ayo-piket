@@ -22,13 +22,19 @@ $flash = get_flash_message();
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #F4F0EA;
-            background-image: radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 1.5px);
-            background-size: 20px 20px;
+            background-image: 
+                radial-gradient(#C2BCB0 1.5px, transparent 1.5px),
+                radial-gradient(ellipse 90% 60% at 50% -10%, rgba(22, 78, 51, 0.04), transparent 75%);
+            background-size: 26px 26px, 100% 100%;
+            background-attachment: scroll, fixed;
         }
         .bg-polkadot {
             background-color: #F4F0EA;
-            background-image: radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 1.5px);
-            background-size: 20px 20px;
+            background-image: 
+                radial-gradient(#C2BCB0 1.5px, transparent 1.5px),
+                radial-gradient(ellipse 90% 60% at 50% -10%, rgba(22, 78, 51, 0.04), transparent 75%);
+            background-size: 26px 26px, 100% 100%;
+            background-attachment: scroll, fixed;
         }
         .font-mono {
             font-family: 'Space Mono', monospace;

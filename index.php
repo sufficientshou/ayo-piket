@@ -53,10 +53,40 @@ if (!function_exists('dapatkan_inisial')) {
 
 <div class="space-y-8 sm:space-y-10">
     <div class="bg-[#164E33] border-2 border-black neo-shadow-lg relative overflow-hidden min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] p-8 sm:p-14 lg:p-20 flex flex-col justify-center">
+        <div class="absolute inset-0 pointer-events-none select-none z-0 opacity-20">
+            <svg class="w-full h-full" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="hero-grid" width="36" height="36" patternUnits="userSpaceOnUse">
+                        <path d="M 36 0 L 0 0 0 36" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
+                        <circle cx="0" cy="0" r="1.5" fill="rgba(255,255,255,0.6)" />
+                        <circle cx="36" cy="0" r="1.5" fill="rgba(255,255,255,0.6)" />
+                        <circle cx="0" cy="36" r="1.5" fill="rgba(255,255,255,0.6)" />
+                        <circle cx="36" cy="36" r="1.5" fill="rgba(255,255,255,0.6)" />
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#hero-grid)" />
+            </svg>
+        </div>
+
+        <div class="absolute inset-0 pointer-events-none select-none z-0"
+             style="background: radial-gradient(circle at 18% 22%, rgba(255,255,255,0.08) 0%, transparent 45%), radial-gradient(circle at 85% 85%, rgba(5,25,15,0.75) 0%, transparent 60%);">
+        </div>
+        <div class="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-white/30 pointer-events-none select-none z-10"></div>
+        <div class="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-white/30 pointer-events-none select-none z-10"></div>
+        <div class="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-white/30 pointer-events-none select-none z-10"></div>
+        <div class="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-white/30 pointer-events-none select-none z-10"></div>
+        <div class="hidden lg:flex absolute top-14 right-[360px] xl:right-[460px] 2xl:right-[540px] z-10 rotate-[-4deg] items-center gap-2 bg-[#B8E926] text-black border-2 border-black px-3.5 py-1.5 font-mono text-xs font-black uppercase tracking-wider neo-shadow-sm select-none pointer-events-none">
+            <span>100% SEKRE TERAWAT</span>
+        </div>
+
+        <div class="hidden xl:flex absolute bottom-8 right-[460px] 2xl:right-[560px] z-10 rotate-[2deg] items-center gap-2 bg-white text-black border-2 border-black px-3 py-1 font-mono text-xs font-black uppercase tracking-wider neo-shadow-sm select-none pointer-events-none">
+            <span class="w-2 h-2 bg-[#E84125] inline-block"></span>
+            <span>SENIN &amp; KAMIS &bull; 15.00-20.00</span>
+        </div>
+
         <div class="absolute -right-16 sm:-right-20 lg:-right-24 xl:-right-32 bottom-0 pointer-events-none select-none z-0 lg:z-10 opacity-75 sm:opacity-90 lg:opacity-100 flex items-end justify-end">
             <img src="assets/images/logo.png" alt="Logo Ayo Piket" class="w-[340px] sm:w-[420px] md:w-[480px] lg:w-[560px] xl:w-[680px] h-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.35)]">
         </div>
-
         <div class="max-w-2xl xl:max-w-3xl relative z-20 space-y-5 sm:space-y-6">
             <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
                 <span class="bg-white text-black border-2 border-black px-3.5 py-1.5 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider shadow-[2px_2px_0_#000]">
