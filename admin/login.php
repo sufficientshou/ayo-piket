@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </main>
 
-    <footer class="border-t-2 border-black bg-transparent py-6 mt-auto relative z-30">
+    <footer class="border-t-2 border-black bg-white py-6 mt-auto relative z-30">
         <div class="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 flex items-center justify-center">
             <div class="flex items-center gap-3 sm:gap-3.5">
                 <div class="w-7 h-7 sm:w-8 sm:h-8 bg-white border-2 border-black flex items-center justify-center p-0.5 shrink-0 neo-shadow-sm">
